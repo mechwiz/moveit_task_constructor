@@ -1092,6 +1092,7 @@ void MergerPrivate::resolveInterface(InterfaceFlags expected) {
 Merger::Merger(const std::string& name) : Merger(new MergerPrivate(this, name)) {
 	properties().declare<TimeParameterizationPtr>("time_parameterization",
 	                                                 std::make_shared<TimeOptimalTrajectoryGeneration>());
+	properties().declare<bool>("apply_ruckig_smoothing", false);
 }
 
 void Merger::reset() {
@@ -1246,7 +1247,8 @@ void MergerPrivate::merge(const ChildSolutionList& sub_solutions,
 	robot_trajectory::RobotTrajectoryPtr merged;
 	try {
 		auto timing = me_->properties().get<TimeParameterizationPtr>("time_parameterization");
-		merged = task_constructor::merge(sub_trajectories, start_scene->getCurrentState(), jmg, *timing);
+		bool apply_ruckig_smoothing = me_->properties().get<bool>("apply_ruckig_smoothing");
+		merged = task_constructor::merge(sub_trajectories, start_scene->getCurrentState(), jmg, *timing, apply_ruckig_smoothing);
 	} catch (const std::runtime_error& e) {
 		SubTrajectory t;
 		t.markAsFailure();
