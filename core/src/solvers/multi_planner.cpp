@@ -52,7 +52,9 @@ void MultiPlanner::init(const core::RobotModelConstPtr& robot_model) {
 bool MultiPlanner::plan(const planning_scene::PlanningSceneConstPtr& from,
                         const planning_scene::PlanningSceneConstPtr& to, const moveit::core::JointModelGroup* jmg,
                         double timeout, robot_trajectory::RobotTrajectoryPtr& result,
-                        const moveit_msgs::msg::Constraints& path_constraints) {
+                        const moveit_msgs::msg::Constraints& path_constraints,
+                        const std::vector<moveit_msgs::msg::JointLimits>& joint_limits,
+                        const bool& apply_ruckig_smoothing) {
 	double remaining_time = std::min(timeout, properties().get<double>("timeout"));
 	auto start_time = std::chrono::steady_clock::now();
 
@@ -61,7 +63,7 @@ bool MultiPlanner::plan(const planning_scene::PlanningSceneConstPtr& from,
 			return false;  // timeout
 		if (result)
 			result->clear();
-		if (p->plan(from, to, jmg, remaining_time, result, path_constraints))
+		if (p->plan(from, to, jmg, remaining_time, result, path_constraints, joint_limits, apply_ruckig_smoothing))
 			return true;
 
 		auto now = std::chrono::steady_clock::now();
@@ -75,7 +77,9 @@ bool MultiPlanner::plan(const planning_scene::PlanningSceneConstPtr& from, const
                         const Eigen::Isometry3d& offset, const Eigen::Isometry3d& target,
                         const moveit::core::JointModelGroup* jmg, double timeout,
                         robot_trajectory::RobotTrajectoryPtr& result,
-                        const moveit_msgs::msg::Constraints& path_constraints) {
+                        const moveit_msgs::msg::Constraints& path_constraints,
+                        const std::vector<moveit_msgs::msg::JointLimits>& joint_limits,
+                        const bool& apply_ruckig_smoothing) {
 	double remaining_time = std::min(timeout, properties().get<double>("timeout"));
 	auto start_time = std::chrono::steady_clock::now();
 
@@ -84,7 +88,8 @@ bool MultiPlanner::plan(const planning_scene::PlanningSceneConstPtr& from, const
 			return false;  // timeout
 		if (result)
 			result->clear();
-		if (p->plan(from, link, offset, target, jmg, remaining_time, result, path_constraints))
+		if (p->plan(from, link, offset, target, jmg, remaining_time, result, path_constraints, joint_limits,
+		            apply_ruckig_smoothing))
 			return true;
 
 		auto now = std::chrono::steady_clock::now();
