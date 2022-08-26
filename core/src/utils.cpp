@@ -53,7 +53,8 @@ namespace task_constructor {
 namespace utils {
 
 const moveit::core::LinkModel* getRigidlyConnectedParentLinkModel(const moveit::core::RobotState& state,
-                                                                  std::string frame) {
+                                                                  const std::string& frame) {
+#if MOVEIT_HAS_STATE_RIGID_PARENT_LINK
 	return state.getRigidlyConnectedParentLinkModel(frame);
 }
 
