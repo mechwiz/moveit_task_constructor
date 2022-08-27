@@ -87,14 +87,14 @@ public:
 	     const std::vector<moveit_msgs::msg::JointLimits>& joint_limits = std::vector<moveit_msgs::msg::JointLimits>(),
 	     const bool& apply_ruckig_smoothing = false) = 0;
 
-	/// plan trajectory from current robot state to Cartesian target
-	virtual bool
-	plan(const planning_scene::PlanningSceneConstPtr& from, const moveit::core::LinkModel& link,
-	     const Eigen::Isometry3d& target, const moveit::core::JointModelGroup* jmg, double timeout,
-	     robot_trajectory::RobotTrajectoryPtr& result,
-	     const moveit_msgs::msg::Constraints& path_constraints = moveit_msgs::msg::Constraints(),
-	     const std::vector<moveit_msgs::msg::JointLimits>& joint_limits = std::vector<moveit_msgs::msg::JointLimits>(),
-	     const bool& apply_ruckig_smoothing = false) = 0;
+	/// plan trajectory from current robot state to Cartesian target, such that pose(link)*offset == target
+	virtual bool plan(const planning_scene::PlanningSceneConstPtr& from, const moveit::core::LinkModel& link,
+	                  const Eigen::Isometry3d& offset, const Eigen::Isometry3d& target,
+	                  const moveit::core::JointModelGroup* jmg, double timeout,
+	                  robot_trajectory::RobotTrajectoryPtr& result,
+	                  const moveit_msgs::Constraints& path_constraints = moveit_msgs::Constraints(),
+                    const std::vector<moveit_msgs::msg::JointLimits>& joint_limits = std::vector<moveit_msgs::msg::JointLimits>(),
+                    const bool& apply_ruckig_smoothing = false) = 0;
 };
 }  // namespace solvers
 }  // namespace task_constructor
