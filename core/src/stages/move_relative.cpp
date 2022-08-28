@@ -113,8 +113,9 @@ static bool getJointStateFromOffset(const boost::any& direction, const moveit::c
 	return false;
 }
 
-static void visualizePlan(std::deque<visualization_msgs::msg::Marker>& markers, Interface::Direction dir, bool success,
-                          const std::string& ns, const std::string& frame_id, const Eigen::Isometry3d& link_pose,
+// Create an arrow marker from start_pose to reached_pose, split into a red and green part based on achieved distance
+static void visualizePlan(std::deque<visualization_msgs::Marker>& markers, Interface::Direction dir, bool success,
+                          const std::string& ns, const std::string& frame_id, const Eigen::Isometry3d& start_pose,
                           const Eigen::Isometry3d& reached_pose, const Eigen::Vector3d& linear, double distance) {
 	double linear_norm = linear.norm();
 
@@ -123,7 +124,7 @@ static void visualizePlan(std::deque<visualization_msgs::msg::Marker>& markers, 
 	auto quat_cylinder = quat_target * Eigen::AngleAxisd(0.5 * M_PI, Eigen::Vector3d::UnitY());
 
 	// link position before planning; reached link position after planning; target link position
-	Eigen::Vector3d pos_link = link_pose.translation();
+	Eigen::Vector3d pos_start = start_pose.translation();
 	Eigen::Vector3d pos_reached = reached_pose.translation();
 	Eigen::Vector3d pos_target = pos_reached + quat_target * Eigen::Vector3d(linear_norm - distance, 0, 0);
 
@@ -133,7 +134,7 @@ static void visualizePlan(std::deque<visualization_msgs::msg::Marker>& markers, 
 	if (dir == Interface::FORWARD) {
 		if (success) {
 			// valid part: green arrow
-			rviz_marker_tools::makeArrow(m, pos_link, pos_reached, 0.1 * linear_norm);
+			rviz_marker_tools::makeArrow(m, pos_start, pos_reached, 0.1 * linear_norm);
 			rviz_marker_tools::setColor(m.color, rviz_marker_tools::LIME_GREEN);
 			markers.push_back(m);
 		} else {
@@ -148,14 +149,14 @@ static void visualizePlan(std::deque<visualization_msgs::msg::Marker>& markers, 
 			rviz_marker_tools::makeCylinder(m, 0.1 * linear_norm, distance);
 			rviz_marker_tools::setColor(m.color, rviz_marker_tools::LIME_GREEN);
 			// position half-way between pos_link and pos_reached
-			m.pose.position = tf2::toMsg(Eigen::Vector3d{ 0.5 * (pos_link + pos_reached) });
+			m.pose.position = tf2::toMsg(Eigen::Vector3d{ 0.5 * (pos_start + pos_reached) });
 			m.pose.orientation = tf2::toMsg(quat_cylinder);
 			markers.push_back(m);
 		}
 	} else {
 		// valid part: green arrow
 		// head length according to above comment
-		rviz_marker_tools::makeArrow(m, pos_reached, pos_link, 0.1 * linear_norm, 0.23 * linear_norm);
+		rviz_marker_tools::makeArrow(m, pos_reached, pos_start, 0.1 * linear_norm, 0.23 * linear_norm);
 		rviz_marker_tools::setColor(m.color, rviz_marker_tools::LIME_GREEN);
 		markers.push_back(m);
 		if (!success) {
