@@ -77,12 +77,13 @@ bool CartesianPath::plan(const planning_scene::PlanningSceneConstPtr& from,
 	}
 
 	// reach pose of forward kinematics
-	return plan(from, *link, to->getCurrentState().getGlobalLinkTransform(link), jmg, timeout, result, path_constraints,
-	            joint_limits, apply_ruckig_smoothing);
+	return plan(from, *link, Eigen::Isometry3d::Identity(), to->getCurrentState().getGlobalLinkTransform(link), jmg,
+	            timeout, result, path_constraints, joint_limits, apply_ruckig_smoothing);
 }
 
 bool CartesianPath::plan(const planning_scene::PlanningSceneConstPtr& from, const moveit::core::LinkModel& link,
-                         const Eigen::Isometry3d& target, const moveit::core::JointModelGroup* jmg, double timeout,
+                         const Eigen::Isometry3d& offset, const Eigen::Isometry3d& target,
+                         const moveit::core::JointModelGroup* jmg, double timeout,
                          robot_trajectory::RobotTrajectoryPtr& result,
                          const moveit_msgs::msg::Constraints& path_constraints,
                          const std::vector<moveit_msgs::msg::JointLimits>& joint_limits,
@@ -106,7 +107,13 @@ bool CartesianPath::plan(const planning_scene::PlanningSceneConstPtr& from, cons
 	    &(sandbox_scene->getCurrentStateNonConst()), jmg, trajectory, &link, target, true,
 	    moveit::core::MaxEEFStep(props.get<double>("step_size")),
 	    moveit::core::JumpThreshold(props.get<double>("jump_threshold")), is_valid,
+	    props.get<kinematics::KinematicsQueryOptions>("kinematics_options"), offset);
+#else
+	double achieved_fraction = sandbox_scene->getCurrentStateNonConst().computeCartesianPath(
+	    jmg, trajectory, &link, target * offset.inverse(), true, props.get<double>("step_size"),
+	    props.get<double>("jump_threshold"), is_valid,
 	    props.get<kinematics::KinematicsQueryOptions>("kinematics_options"));
+#endif
 
 	assert(!trajectory.empty());  // there should be at least the start state
 	result = std::make_shared<robot_trajectory::RobotTrajectory>(sandbox_scene->getRobotModel(), jmg);
