@@ -60,7 +60,7 @@ std::string getTaskId(const TaskPrivate* task) {
 
 	// Hostname could have characters that are invalid in ROS so we replace them with `_`
 	std::vector<char> invalid_characters = { '-', '.' };
-	for (auto & character : invalid_characters) {
+	for (auto& character : invalid_characters) {
 		std::replace(std::begin(our_hostname), std::end(our_hostname), character, '_');
 	}
 
