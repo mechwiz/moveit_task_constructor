@@ -58,8 +58,8 @@ std::string getTaskId(const TaskPrivate* task) {
 	char our_hostname[256] = { 0 };
 	gethostname(our_hostname, sizeof(our_hostname) - 1);
 
-	// Hostname could have characters that are invalid in ROS so we replace them it with `_`
-	std::vector<char> invalid_characters = {'-','.'};
+	// Hostname could have characters that are invalid in ROS so we replace them with `_`
+	std::vector<char> invalid_characters = { '-', '.' };
 	for (auto & character : invalid_characters) {
 		std::replace(std::begin(our_hostname), std::end(our_hostname), character, '_');
 	}
