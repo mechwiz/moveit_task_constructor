@@ -438,6 +438,7 @@ void TaskSolutionVisualization::update(float wall_dt, float /*ros_dt*/) {
 			current_state_ = max_state_index;
 			if (slider_panel_)
 				slider_panel_->pauseButton(true);
+			animating_ = false;
 		}
 		setVisibility();
 		return;
